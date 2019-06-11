@@ -10,26 +10,26 @@ const history = createBrowserHistory()
 
 const getDebugExtension = () => {
   const log = (module = {}, action) => {
-    const consoleColor = 'color: green'
+    const consoleColor = 'color: green';
 
     if (process.env.NODE_ENV === 'development') {
       console.log(`%cModule "${module.id}" ${action}`, consoleColor)
     }
-  }
+  };
 
   return {
     onModuleAdded: module => log(module, 'added'),
     onModuleRemoved: module => log(module, 'removed'),
   }
-}
+};
 
 const requestSaga = function*() {
   yield createRequestInstance({
     driver: createDriver(window.fetch),
-  })
+  });
 
   yield fork(watchRequests)
-}
+};
 
 const modules = [
   {
@@ -45,10 +45,10 @@ const modules = [
     ],
     sagas: [requestSaga],
   },
-]
+];
 
 const store = createStore({}, [], [getDebugExtension(), getSagaExtension()], modules)
 
-store.history = history
+store.history = history;
 
 export default store
