@@ -2,7 +2,7 @@ import React from 'react'
 import Link from '../common/Link'
 import { Card, Flex, Text } from '@ursip/design-system'
 import * as jokesModule from '../jokes/jokes-duck'
-import * as norrisModule from '../jokes/norris-duck'
+import * as norrisModule from '../norrisJokes/norris-duck'
 
 const modules = [
   {
@@ -12,7 +12,7 @@ const modules = [
   {
     name: norrisModule.name,
     route: norrisModule.baseRoute,
-  }
+  },
 ]
 
 function Main() {

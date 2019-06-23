@@ -4,7 +4,7 @@ import { success, error } from 'redux-saga-requests'
 import * as R from 'ramda'
 import * as jokesService from '../../services/jokes'
 
-const name = 'jokes'
+const name = 'jokes-service'
 const baseRoute = '/jokes'
 
 const initialState = {
@@ -12,17 +12,22 @@ const initialState = {
   selectedGroup: null,
   searchQuery: '',
   seenJokes: [],
+  openedJokes: [],
 }
 
 /** Internal types */
 const SELECT_GROUP = `${name}/SELECT_GROUP`
 const SEARCH = `${name}/SEARCH`
 const SET_SEEN = `${name}/SET_SEEN`
+const SET_OPEN = `${name}/SET_OPEN`
+const SET_CLOSE = `${name}/SET_CLOSE`
 
 const types = {
   SELECT_GROUP,
   SEARCH,
   SET_SEEN,
+  SET_OPEN,
+  SET_CLOSE,
 }
 
 /** Action creators */
@@ -51,6 +56,22 @@ const actions = {
       },
     }
   },
+  setOpen(id) {
+    return {
+      type: types.SET_OPEN,
+      payload: {
+        id,
+      },
+    }
+  },
+  setClose(id) {
+    return {
+      type: types.SET_CLOSE,
+      payload: {
+        id,
+      },
+    }
+  },
 }
 
 /** Reducers */
@@ -68,15 +89,20 @@ const reducers = {
     selectedGroup: payload.selectedGroup,
   }),
   [types.SEARCH]: (_, { payload }) => ({
-    searchQuery: payload.searchQuery,
+    searchQuery: payload.searchQuery && '',
   }),
   [types.SET_SEEN]: (state, { payload }) => ({
     seenJokes: [...new Set(state.seenJokes.concat(payload.id))],
   }),
+  [types.SET_OPEN]: (state, { payload }) => ({
+    openedJokes: [...new Set(state.openedJokes.concat(payload.id))],
+  }),
+  [types.SET_CLOSE]: (state, { payload }) => ({
+    openedJokes: [...new Set(state.openedJokes.filter(item => item !== payload.id))],
+  }),
 }
 
 /** Selectors */
-const groupByType = R.groupBy(item => item.type)
 
 const stateSelector = state => state[name] || initialState
 const jokesServiceSelector = state => state[jokesService.name] || []
@@ -96,6 +122,11 @@ const seenJokes = createSelector(
   state => state.seenJokes,
 )
 
+const openedJokes = createSelector(
+  stateSelector,
+  state => state.openedJokes,
+)
+
 const searchQuery = createSelector(
   stateSelector,
   state => state.searchQuery,
@@ -103,7 +134,7 @@ const searchQuery = createSelector(
 
 const grouped = createSelector(
   jokesServiceSelector,
-  data => groupByType(data),
+  data => R.groupBy(joke => joke.type)(data),
 )
 
 const groupNames = createSelector(
@@ -119,14 +150,12 @@ const byGroupName = createSelector(
 )
 
 const getData = createSelector(
-  grouped,
+  byGroupName,
   searchQuery,
-  selectedGroup,
-  jokesServiceSelector,
-  (grouped, searchQuery, selectedGroup, allJokes) =>
-    (grouped[selectedGroup] || allJokes)
+  (jokes, searchQuery) =>
+    jokes
       .filter(item => {
-        const { id, ...searchData } = item
+        const { id, type, ...searchData } = item
         return JSON.stringify(Object.values(searchData))
           .toLowerCase()
           .includes(searchQuery.toLowerCase())
@@ -139,6 +168,7 @@ const selectors = {
   selectedGroup,
   searchQuery,
   seenJokes,
+  openedJokes,
   grouped,
   groupNames,
   byGroupName,

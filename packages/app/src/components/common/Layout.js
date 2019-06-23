@@ -2,21 +2,21 @@ import React from 'react'
 import { Scrollbars } from 'react-custom-scrollbars'
 import { Flex, Box, Text } from '@ursip/design-system'
 import { withRouter } from 'react-router-dom'
-import pkg from '../../../package.json'
-import Logo from './Logo'
 
-export const headerId = 'layoutHeaderContent'
+import Logo from './Logo'
+import pkg from '../../../package.json'
 
 /**
  * Main application layout
  */
 function Layout({ children, width, maxWidth, history, ...props }) {
+  console.log('Layput sees props as:', props)
   const handleLogoClick = () => history.push('/')
   const year = new Date().getFullYear()
 
   return (
     <Flex height="100vh" flexDirection="column" alignItems="stretch" {...props}>
-     { /*header section*/}
+      {/*header section*/}
       <Box bg="lightGrey">
         <Flex mx="auto" alignItems="center" width={width} height={63} style={{ maxWidth }}>
           <Box>
@@ -28,7 +28,7 @@ function Layout({ children, width, maxWidth, history, ...props }) {
             </Text>
             <Text fontSize={0}>{pkg.description}</Text>
           </Box>
-          <Box ml={3} id={headerId} />
+          <Box ml={3} />
         </Flex>
       </Box>
       {/*Content section*/}

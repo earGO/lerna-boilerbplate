@@ -1,12 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Card, Flex, Box, Text, Icon } from '@ursip/design-system'
+import { Card, Flex, Box, Text, Icon, Relative } from '@ursip/design-system'
 
 import noop from '../../utils/noop'
 
 const StyledCard = styled(Card)`
-  opacity: ${props => (props.seen ? 0.4 : 1)};
+  opacity: ${props => (props.transparent ? 0.4 : 1)};
   :hover {
     opacity: 1;
   }
@@ -38,24 +38,24 @@ const BouncingText = styled(Text)`
   }
 `
 
-function Item({ header, content, contentPostfix, onClick, ...props }) {
-  const [visible, setVisible] = React.useState(false)
-  const toggleVisibility = () => {
-    setVisible(!visible)
-    onClick && typeof onClick === 'function' && onClick(visible)
-  }
-
+function Item({ header, contentPostfix, onClick, opened, children, punchline, ...props }) {
   return (
-    <StyledCard p={4} {...props} onClick={toggleVisibility} style={{ cursor: 'pointer' }}>
+    <StyledCard p={4} {...props}>
       <Flex>
-        <Icon name={visible ? 'chevron-up' : 'chevron-down'} top={2} color="primary" mr={3} fontSize={3} />
+        <Icon name={opened ? 'chevron-up' : 'chevron-down'} top={2} color="primary" mr={3} fontSize={3} />
         <Box>
-          <Text color="primary" fontSize={3} mb={visible ? 4 : 0}>
+          <Text color="primary" fontSize={3} mb={opened ? 4 : 0} onClick={onClick} style={{ cursor: 'pointer' }}>
             {header}
           </Text>
-          {visible && <BouncingText fontSize={5}>{content + contentPostfix}</BouncingText>}
+          {opened && <BouncingText fontSize={5}>{punchline + contentPostfix}</BouncingText>}
         </Box>
       </Flex>
+      {/*All outside packages invoked here through children-props*/}
+      <Relative p={1} top={'1em'} width={'30%'}>
+        <Flex justifyContent={'flex-start'} flexDirection={'column'}>
+          {children}
+        </Flex>
+      </Relative>
     </StyledCard>
   )
 }
@@ -63,17 +63,22 @@ function Item({ header, content, contentPostfix, onClick, ...props }) {
 Item.propTypes = {
   contentPostfix: PropTypes.string,
   header: PropTypes.string,
-  content: PropTypes.string,
-  seen: PropTypes.bool,
+  punchline: PropTypes.string,
   onClick: PropTypes.func,
+  transparent: PropTypes.bool,
+  opened: PropTypes.bool,
+  jokeId: PropTypes.string,
 }
 
 Item.defaultProps = {
   contentPostfix: '))))))))',
   header: 'Setup',
-  content: 'Punchline',
-  seen: false,
+  punchline: 'Punchline',
+  transparent: false,
   onClick: noop,
+  opened: false,
+  openedComments: false,
+  addComment: false,
 }
 
 export default Item
